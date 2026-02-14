@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+<script src="script.js"></script>
+  
+    <title>Checkout | KidColors</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-color: #a68686; 
+            --bg-color: #fcf5ee;
+        }
+
+        body { font-family: 'Quicksand', sans-serif; background-color: var(--bg-color); margin: 0; }
+
+       
+        .main-header { 
+            background: var(--brand-color); 
+            padding: 20px 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            color: white;
+        }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-img { width: 45px; height: 45px; border-radius: 8px; background: white; padding: 2px; }
+        .logo-text h1 { font-size: 1.2rem; margin: 0; color: white; }
+        .logo-text p { font-size: 0.6rem; margin: 0; opacity: 0.9; }
+        
+        .nav-links { display: flex; gap: 8px; }
+        .nav-links a { 
+            text-decoration: none; color: white; font-weight: 600; 
+            background: rgba(255,255,255,0.2); padding: 8px 15px; 
+            border-radius: 20px; font-size: 0.8rem;
+        }
+
+      
+        .checkout-container { display: flex; flex-direction: column; align-items: center; padding: 30px 20px; }
+        .order-card {
+            background: white; padding: 30px; border-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02); width: 85%; max-width: 450px; text-align: center;
+        }
+
+        .input-box {
+            width: 100%; padding: 14px; margin-bottom: 12px;
+            border: 1px solid #f0e4e4; border-radius: 18px; font-family: 'Quicksand'; box-sizing: border-box;
+            background: white; color: #333; outline: none; font-size: 0.9rem;
+        }
+
+        .section-heading {
+            text-align: left; color: var(--brand-color); font-weight: bold; 
+            margin: 10px 0 8px 5px; font-size: 0.95rem;
+        }
+
+        .price-tag {
+            background: #fff8f8; padding: 15px; border-radius: 25px; margin: 20px 0;
+            border: 2px dashed var(--brand-color);
+        }
+
+        .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .payment-btn {
+            background: white; border: 2px solid #f0e4e4; padding: 14px;
+            border-radius: 18px; cursor: pointer; font-weight: 600; color: var(--brand-color); 
+            font-family: 'Quicksand'; transition: 0.3s;
+        }
+        .payment-selected { background: #fff5f5 !important; border: 2px solid var(--brand-color) !important; }
+
+    
+        #tidContainer { margin-top: 15px; text-align: left; display: none; }
+        .tid-label { color: var(--brand-color); font-weight: bold; margin-bottom: 5px; display: block; font-size: 0.85rem; }
+        .tid-input { border: 2px solid var(--brand-color) !important; background: #fffcfc !important; }
+
+        .action-btn {
+            background: var(--brand-color); color: white; border: none; padding: 18px;
+            width: 100%; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s;
+            font-family: 'Quicksand'; margin-top: 15px; font-size: 1.1rem;
+        }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 20% auto; padding: 30px; width: 85%; max-width: 350px; border-radius: 35px; text-align: center; position: relative; }
+        .close-modal { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #aaa; }
+
+        footer { background: var(--brand-color); padding: 25px; text-align: center; margin-top: 50px; color: white; }
+    .close-checkout {
+    position: fixed; 
+    top: 20px;
+    right: 30px; 
+    font-size: 40px; 
+    color: #a68686; 
+    text-decoration: none;
+    font-weight: bold;
+    z-index: 9999; 
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.8); 
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.close-checkout:hover {
+    transform: scale(1.1); 
+    color: #333;
+}
+    </style>
+</head>
+
+<script>
+
+  function previewImage(event) {
+      const reader = new FileReader();
+      reader.onload = function() {
+          const output = document.getElementById('imagePreview');
+          const container = document.getElementById('imagePreviewContainer');
+          if (output) {
+              output.src = reader.result;
+              container.style.display = 'block';
+          }
+      };
+      if (event.target.files[0]) {
+          reader.readAsDataURL(event.target.files[0]);
+      }
+  }
+
+</script>
+
+<body>
+
+
+    <div class="checkout-container">
+        <div class="order-card">
+            <h2 style="color: var(--brand-color); margin-bottom: 20px;">Checkout 🛍️</h2>
+            
+            <input type="text" id="custName" class="input-box" placeholder="Your Full Name">
+            <input type="email" id="custEmail" class="input-box" placeholder="Email Address">
+            <input type="text" id="custWhatsApp" class="input-box" placeholder="WhatsApp Number">
+            <div id="book-details-section" style="display: none; margin-bottom: 20px; background: #fffaf5; padding: 15px; border-radius: 20px; border: 2px dashed #a68686;">
+    <h3 style="color: #8b5e3c; font-size: 1.1rem; margin-bottom: 10px; border-bottom: 2px solid #ffbaba; font-family: 'Fredoka One', cursive;">Book Details 📖</h3>
+    
+    <div style="margin-bottom: 15px;">
+        <p style="margin: 0 0 5px 0; font-size: 0.85rem; color: #666;">Upload Your Photo:</p>
+
+
+<div class="book-details-box" style="border: 1px dashed #ccc; padding: 15px; border-radius: 10px;">
+  
+    
+<input type="file" id="customerPhoto" onchange="previewImage(event)" accept="image/*" style="display: none;">
+
+<label for="customerPhoto" class="custom-upload-btn">
+    Click to Select Photo 📷
+</label>
+    <div id="imagePreviewContainer" style="display:none; margin-top: 15px; text-align: center;">
+        <img id="imagePreview" src="" alt="Preview" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #eee;">
+        <p id="pitcherName" style="font-size: 12px; color: #666; margin-top: 5px;"></p>
+    </div>
+</div>
+        <div id="imagePreviewContainer" style="margin-top: 10px; display: none; text-align: center;">
+            <img id="imagePreview" src="#" style="width: 80px; border-radius: 10px; border: 2px solid #ffbaba;">
+        </div>
+    </div>
+
+    <div>
+        <p style="margin: 0 0 5px 0; font-size: 0.85rem; color: #666;">Name to print on Book:</p>
+        <input type="text" id="bookNameInput" class="input-box" placeholder="e.g. Ayan's World" style="width: 100%; box-sizing: border-box;">
+    </div>
+</div>
+            <div class="section-heading">Delivery Address</div>
+            <textarea id="custAddress" class="input-box" placeholder="House No, Street, Area etc." rows="2"></textarea>
+            
+            <input list="countryData" id="countrySelect" class="input-box" placeholder="Select Country">
+          <datalist id="countryData">
+   
+   <option value="India"><option value="Pakistan"><option value="United Arab Emirates"><option value="Saudi Arabia"><option value="United States"><option value="United Kingdom"><option value="Canada"><option value="Australia"><option value="Afghanistan"><option value="Albania"><option value="Algeria"><option value="Andorra"><option value="Angola"><option value="Antigua and Barbuda"><option value="Argentina"><option value="Armenia"><option value="Austria"><option value="Azerbaijan"><option value="Bahamas"><option value="Bahrain"><option value="Bangladesh"><option value="Barbados"><option value="Belarus"><option value="Belgium"><option value="Belize"><option value="Benin"><option value="Bhutan"><option value="Bolivia"><option value="Bosnia and Herzegovina"><option value="Botswana"><option value="Brazil"><option value="Brunei"><option value="Bulgaria"><option value="Burkina Faso"><option value="Burundi"><option value="Cambodia"><option value="Cameroon"><option value="Cape Verde"><option value="Central African Republic"><option value="Chad"><option value="Chile"><option value="China"><option value="Colombia"><option value="Comoros"><option value="Congo"><option value="Costa Rica"><option value="Croatia"><option value="Cuba"><option value="Cyprus"><option value="Czech Republic"><option value="Denmark"><option value="Djibouti"><option value="Dominica"><option value="Dominican Republic"><option value="Ecuador"><option value="Egypt"><option value="El Salvador"><option value="Equatorial Guinea"><option value="Eritrea"><option value="Estonia"><option value="Ethiopia"><option value="Fiji"><option value="Finland"><option value="France"><option value="Gabon"><option value="Gambia"><option value="Georgia"><option value="Germany"><option value="Ghana"><option value="Greece"><option value="Grenada"><option value="Guatemala"><option value="Guinea"><option value="Guyana"><option value="Haiti"><option value="Honduras"><option value="Hungary"><option value="Iceland"><option value="Indonesia"><option value="Iran"><option value="Iraq"><option value="Ireland"><option value="Italy"><option value="Jamaica"><option value="Japan"><option value="Jordan"><option value="Kazakhstan"><option value="Kenya"><option value="Kiribati"><option value="Kuwait"><option value="Kyrgyzstan"><option value="Laos"><option value="Latvia"><option value="Lebanon"><option value="Lesotho"><option value="Liberia"><option value="Libya"><option value="Liechtenstein"><option value="Lithuania"><option value="Luxembourg"><option value="Madagascar"><option value="Malawi"><option value="Malaysia"><option value="Maldives"><option value="Mali"><option value="Malta"><option value="Marshall Islands"><option value="Mauritania"><option value="Mauritius"><option value="Mexico"><option value="Micronesia"><option value="Moldova"><option value="Monaco"><option value="Mongolia"><option value="Montenegro"><option value="Morocco"><option value="Mozambique"><option value="Myanmar"><option value="Namibia"><option value="Nauru"><option value="Nepal"><option value="Netherlands"><option value="New Zealand"><option value="Nicaragua"><option value="Niger"><option value="Nigeria"><option value="North Korea"><option value="Norway"><option value="Oman"><option value="Palau"><option value="Palestine"><option value="Panama"><option value="Papua New Guinea"><option value="Paraguay"><option value="Peru"><option value="Philippines"><option value="Poland"><option value="Portugal"><option value="Qatar"><option value="Romania"><option value="Russia"><option value="Rwanda"><option value="Saint Kitts and Nevis"><option value="Saint Lucia"><option value="Saint Vincent"><option value="Samoa"><option value="San Marino"><option value="Sao Tome and Principe"><option value="Senegal"><option value="Serbia"><option value="Seychelles"><option value="Sierra Leone"><option value="Singapore"><option value="Slovakia"><option value="Slovenia"><option value="Solomon Islands"><option value="Somalia"><option value="South Africa"><option value="South Korea"><option value="South Sudan"><option value="Spain"><option value="Sri Lanka"><option value="Sudan"><option value="Suriname"><option value="Swaziland"><option value="Sweden"><option value="Switzerland"><option value="Syria"><option value="Taiwan"><option value="Tajikistan"><option value="Tanzania"><option value="Thailand"><option value="Timor-Leste"><option value="Togo"><option value="Tonga"><option value="Trinidad and Tobago"><option value="Tunisia"><option value="Turkey"><option value="Turkmenistan"><option value="Tuvalu"><option value="Uganda"><option value="Ukraine"><option value="Uruguay"><option value="Uzbekistan"><option value="Vanuatu"><option value="Vatican City"><option value="Venezuela"><option value="Vietnam"><option value="Yemen"><option value="Zambia"><option value="Zimbabwe"><option value="Afghanistan"><option value="Albania"><option value="Algeria"><option value="Andorra"><option value="Angola"><option value="Antigua and Barbuda"><option value="Argentina"><option value="Armenia"><option value="Azerbaijan"><option value="Bahamas"><option value="Bahrain"><option value="Bangladesh"><option value="Barbados"><option value="Belarus"><option value="Belgium"><option value="Belize"><option value="Benin"><option value="Bhutan"><option value="Bolivia"><option value="Bosnia and Herzegovina"><option value="Botswana"><option value="Brazil"><option value="Brunei"><option value="Bulgaria"><option value="Burkina Faso"><option value="Burundi"><option value="Cambodia"><option value="Cameroon"><option value="Cape Verde"><option value="Central African Republic"><option value="Chad"><option value="Chile"><option value="Colombia"><option value="Comoros"><option value="Congo"><option value="Costa Rica"><option value="Croatia"><option value="Cuba"><option value="Cyprus"><option value="Czech Republic"><option value="Denmark"><option value="Djibouti"><option value="Dominica"><option value="Dominican Republic"><option value="Ecuador"><option value="Egypt"><option value="El Salvador"><option value="Equatorial Guinea"><option value="Eritrea"><option value="Estonia"><option value="Ethiopia"><option value="Fiji"><option value="Finland"><option value="Gabon"><option value="Gambia"><option value="Georgia"><option value="Ghana"><option value="Grenada"><option value="Guatemala"><option value="Guinea"><option value="Guyana"><option value="Haiti"><option value="Honduras"><option value="Hungary"><option value="Iceland"><option value="Indonesia"><option value="Iran"><option value="Iraq"><option value="Ireland"><option value="Israel"><option value="Jamaica"><option value="Jordan"><option value="Kazakhstan"><option value="Kenya"><option value="Kiribati"><option value="Kuwait"><option value="Kyrgyzstan"><option value="Laos"><option value="Latvia"><option value="Lebanon"><option value="Lesotho"><option value="Liberia"><option value="Libya"><option value="Liechtenstein"><option value="Lithuania"><option value="Luxembourg"><option value="Madagascar"><option value="Malawi"><option value="Maldives"><option value="Mali"><option value="Malta"><option value="Marshall Islands"><option value="Mauritania"><option value="Mauritius"><option value="Moldova"><option value="Monaco"><option value="Mongolia"><option value="Montenegro"><option value="Morocco"><option value="Mozambique"></option>
+</datalist>
+
+            <input list="cityData" id="citySelect" class="input-box" placeholder="Select City">
+            <datalist id="cityData">
+               <option value="Karachi">
+<option value="Lahore"data-country="Pakistan">
+<option value="Faisalabad"data-country="Pakistan">
+<option value="Rawalpindi"data-country="Pakistan"></option>
+<option value="Gujranwala"data-country="Pakistan"></option>
+<option value="Peshawar"data-country="Pakistan"></option>
+<option value="Multan"data-country="Pakistan"></option>
+<option value="Hyderabad"data-country="Pakistan"></option>
+<option value="Islamabad"data-country="Pakistan"></option>
+<option value="Quetta"data-country="Pakistan"></option>
+<option value="Bahawalpur"data-country="Pakistan"></option>
+<option value="Sargodha"data-country="Pakistan"></option>
+<option value="Sialkot"data-country="Pakistan"></option>
+<option value="Sukkur"data-country="Pakistan"></option>
+<option value="Larkana"data-country="Pakistan"></option>
+<option value="Sheikhupura"data-country="Pakistan">
+<option value="Rahim Yar Khan"data-country="Pakistan"></option>
+<option value="Jhang"data-country="Pakistan"></option>
+<option value="Dera Ghazi Khan"data-country="Pakistan">
+<option value="Gujrat"data-country="Pakistan"></option>
+<option value="Sahiwal"data-country="Pakistan"></option>
+<option value="Wah Cantonment"data-country="Pakistan"></option>
+<option value="Mardan"data-country="Pakistan"></option>
+<option value="Kasur"data-country="Pakistan"></option>
+<option value="Okara"data-country="Pakistan"></option>
+<option value="Mingora"data-country="Pakistan"></option>
+<option value="Nawabshah"data-country="Pakistan"></option>
+<option value="Chiniot"data-country="Pakistan">
+<option value="Kotri"data-country="Pakistan">
+<option value="Kāmoke"data-country="Pakistan"></option>
+<option value="Hafizabad"data-country="Pakistan"></option>
+<option value="Sadiqabad"data-country="Pakistan"></option>
+<option value="Mirpur Khas"data-country="Pakistan"></option>
+<option value="Burewala"data-country="Pakistan"></option>
+<option value="Kohat"data-country="Pakistan"></option>
+<option value="Khanewal"data-country="Pakistan"></option>
+<option value="Abbottabad"data-country="Pakistan"></option>
+<option value="Turbat"data-country="Pakistan"></option>
+<option value="Dera Ismail Khan"data-country="Pakistan"></option>
+<option value="Khuzdar"data-country="Pakistan"></option>
+    <option value="Mumbai"data-country="India"></option>
+<option value="Delhi"data-country="India"></option>
+<option value="Bangalore"data-country="India"></option>
+<option value="Hyderabad"data-country="India"></option>
+<option value="Ahmedabad"data-country="India"></option>
+<option value="Chennai"data-country="India"></option>
+<option value="Kolkata"data-country="India"></option>
+<option value="Pune"data-country="India"></option>
+<option value="Surat"data-country="India"></option>
+<option value="Lucknow"data-country="India"></option>
+<option value="Jaipur"data-country="India"></option>
+<option value="Kanpur"data-country="India"></option>
+<option value="Nagpur"data-country="India"></option>
+<option value="Indore"data-country="India"></option>
+<option value="Thane"data-country="India"></optiondata-country="India"></option>
+<option value="Bhopal"data-country="India"></option>
+<option value="Visakhapatnam"data-country="India"></option>
+<option value="Pimpri-Chinchwad"data-country="India"></option>
+<option value="Patna"data-country="India"></option>
+<option value="Vadodara"data-country="India"></option>
+<option value="Ghaziabad"data-country="India"></option>
+<option value="Ludhiana"data-country="India"></option>
+<option value="Agra"data-country="India"></option>
+<option value="Nashik"data-country="India"></option>
+<option value="Faridabad"data-country="India"></option>
+<option value="Meerut"data-country="India"></option>
+<option value="Rajkot"data-country="India"></option>
+<option value="Kalyan-Dombivli"data-country="India"></option>
+<option value="Vasai-Virar"data-country="India"></option>
+<option value="Varanasi"data-country="India"></option>
+<option value="Srinagar"data-country="India"></option>
+<option value="Aurangabad"data-country="India"></option>
+<option value="Dhanbad"data-country="India"></option>
+<option value="Amritsar"data-country="India"></option>
+<option value="Navi Mumbai"data-country="India"></option>
+<option value="Allahabad"data-country="India"></option>
+<option value="Ranchi"data-country="India"></optiondata-country="India"></option>
+<option value="Howrah"data-country="India"></option>
+<option value="Coimbatore"data-country="India"></option>
+<option value="Jabalpur"data-country="India"></option>
+
+  
+    <option value="Dubai"data-country="uaeCities"></option>
+    <option value="Abu Dhabi">
+    <option value="Sharjah">
+    <option value="Ajman">
+    <option value="Al Ain">
+    <option value="Ras Al Khaimah">
+    <option value="Fujairah">
+    <option value="Umm Al Quwain">
+    <option value="Khor Fakkan">
+    <option value="Kalba">
+    <option value="Jebel Ali">
+    <option value="Dibba Al-Fujairah">
+    <option value="Dibba Al-Hisn">
+    <option value="Adhen">
+    <option value="Al-Aryam">
+    <option value="Al-Hamriyah">
+    <option value="Al-Jazirah Al-Hamra">
+    <option value="Al-Rams">
+    <option value="Al-Madam">
+    <option value="Al-Dhaid">
+
+        <datalist id="saudiCities">
+    <option value="Riyadh">
+    <option value="Jeddah">
+    <option value="Mecca">
+    <option value="Medina">
+    <option value="Sultanah">
+    <option value="Dammam">
+    <option value="Ta'if">
+    <option value="Tabuk">
+    <option value="Al Kharj">
+    <option value="Buraydah">
+    <option value="Khamis Mushait">
+    <option value="Al-Hufuf">
+    <option value="Al-Mubarraz">
+    <option value="Ha'il">
+    <option value="Najran">
+    <option value="Hafar Al-Batin">
+    <option value="Al Jubayl">
+    <option value="Abha">
+    <option value="Al Khubar">
+    <option value="Yanbu">
+        <datalist id="usaCities">
+    <option value="New York City">
+    <option value="Los Angeles">
+    <option value="Chicago">
+    <option value="Houston">
+    <option value="Phoenix">
+    <option value="Philadelphia">
+    <option value="San Antonio">
+    <option value="San Diego">
+    <option value="Dallas">
+    <option value="San Jose">
+    <option value="Austin">
+    <option value="Jacksonville">
+    <option value="Fort Worth">
+    <option value="Columbus">
+    <option value="Charlotte">
+    <option value="San Francisco">
+    <option value="Indianapolis">
+    <option value="Seattle">
+    <option value="Denver">
+    <option value="Washington D.C.">
+    <option value="Boston">
+    <option value="El Paso">
+    <option value="Nashville">
+    <option value="Detroit">
+    <option value="Oklahoma City">
+        <datalist id="ukCities">
+    <option value="London">
+    <option value="Birmingham">
+    <option value="Glasgow">
+    <option value="Liverpool">
+    <option value="Bristol">
+    <option value="Manchester">
+    <option value="Sheffield">
+    <option value="Leeds">
+    <option value="Edinburgh">
+    <option value="Leicester">
+    <option value="Coventry">
+    <option value="Bradford">
+    <option value="Cardiff">
+    <option value="Belfast">
+    <option value="Nottingham">
+    <option value="Hull">
+    <option value="Newcastle">
+    <option value="Stoke-on-Trent">
+    <option value="Southampton">
+    <option value="Reading">
+        <datalist id="canadaCities">
+    <option value="Toronto">
+    <option value="Montreal">
+    <option value="Vancouver">
+    <option value="Calgary">
+    <option value="Edmonton">
+    <option value="Ottawa">
+    <option value="Winnipeg">
+    <option value="Quebec City">
+    <option value="Hamilton">
+    <option value="Brampton">
+    <option value="Surrey">
+    <option value="Laval">
+    <option value="Halifax">
+    <option value="London (Canada)">
+    <option value="Markham">
+        <datalist id="chinaCities">
+    <option value="Shanghai">
+    <option value="Beijing">
+    <option value="Guangzhou">
+    <option value="Shenzhen">
+    <option value="Chengdu">
+    <option value="Tianjin">
+    <option value="Wuhan">
+    <option value="Hangzhou">
+    <option value="Chongqing">
+    <option value="Nanjing">
+    <option value="Shenyang">
+    <option value="Xi'an">
+    <option value="Harbin">
+    <option value="Suzhou">
+    <option value="Qingdao">
+        <datalist id="russiaCities">
+    <option value="Moscow">
+    <option value="Saint Petersburg">
+    <option value="Novosibirsk">
+    <option value="Yekaterinburg">
+    <option value="Nizhny Novgorod">
+    <option value="Kazan">
+    <option value="Chelyabinsk">
+    <option value="Omsk">
+    <option value="Samara">
+    <option value="Rostov-on-Don">
+    <option value="Ufa">
+    <option value="Volgograd">
+    <option value="Perm">
+    <option value="Krasnoyarsk">
+    <option value="Voronezh">
+        <datalist id="germanyCities">
+    <option value="Berlin">
+    <option value="Hamburg">
+    <option value="Munich">
+    <option value="Cologne">
+    <option value="Frankfurt">
+    <option value="Stuttgart">
+    <option value="Düsseldorf">
+    <option value="Dortmund">
+    <option value="Essen">
+    <option value="Leipzig">
+    <option value="Bremen">
+    <option value="Dresden">
+    <option value="Hanover">
+    <option value="Nuremberg">
+    <option value="Duisburg">
+</datalist>
+</datalist>
+</datalist>
+</datalist>
+</datalist>
+</datalist>
+</datalist>
+    </datalist>
+        </datalist>
+
+    <div class="price-tag">
+        <p style="margin: 0; color: #666; font-size: 0.8rem;">Total Payable Amount:</p>
+        <h2 id="finalPriceDisplay" style="margin: 5px 0; color: var(--brand-color);">Rs. 0.00</h2>
+        <small style="color: #999;">Transfer exact amount for quick verification</small>
+    </div>
+
+    <h3 style="color: var(--brand-color); margin-top: 10px; font-size: 1rem;">Select Payment Method:</h3>
+    <div class="payment-grid">
+        
+        <button class="payment-btn" onclick="openModal(this, 'JazzCash', 'PK998JCMA11029231105255', 'Kidcolors')">JazzCash</button>
+        <button class="payment-btn" onclick="openModal(this, 'Bank Transfer', '12345678', 'Meezan Bank')">Bank</button>
+        <button id="codBtn" class="payment-btn" onclick="selectCOD(this)">🚚 COD</button>
+    </div>
+
+    <div id="tidContainer">
+        <span class="tid-label">Transaction ID (TID):</span>
+        <input type="text" id="transID" class="input-box tid-input" placeholder="Enter 11-digit TID here">
+    </div>
+    
+    <button id="confirmBtn" class="action-btn" onclick="confirmOrder()">Confirm Order</button>
+
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3 id="methodName" style="color: var(--brand-color);">Details</h3>
+            <div style="background: #fafafa; padding: 20px; border-radius: 20px; text-align: left; margin: 15px 0;">
+                <p><strong>Name:</strong> <span id="accName"></span></p>
+                <p><strong>Raast ID:</strong> <span id="accNum"></span></p>
+            </div>
+            <button id="copyBtn" class="action-btn" onclick="justCopy()"> Copy ID 📋</button>
+        </div>
+    </div>
+
+    <script>
+    
+     
+window.onload = function() {
+    console.log("Checking for Little Artists World...");
+
+    let cart = JSON.parse(localStorage.getItem('myCart')) || [];
+    let bookSection = document.getElementById('book-details-section');
+    
+    let hasMainProduct = cart.some(item => {
+        let name = item.name.toLowerCase();
+        return name.includes("little artist") || name.includes("artists world");
+    });
+
+    console.log("Found Product?", hasMainProduct);
+
+    if (hasMainProduct && bookSection) {
+        bookSection.style.display = "block";
+        console.log("Section is now visible!");
+    }
+
+    
+    let savedTotal = localStorage.getItem('cartTotal') || "0";
+    let uniquePoint = (Math.random() * (0.99 - 0.01) + 0.01).toFixed(2);
+    let finalPayable = (parseFloat(savedTotal) + parseFloat(uniquePoint)).toFixed(2);
+    
+    document.getElementById('finalPriceDisplay').innerText = "Rs. " + finalPayable;
+};
+        function openModal(element, method, num, name) {
+            selectedPayment = method;
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('payment-selected'));
+            element.classList.add('payment-selected');
+            document.getElementById('methodName').innerText = method;
+            document.getElementById('accNum').innerText = num;
+            document.getElementById('accName').innerText = name;
+            document.getElementById('paymentModal').style.display = "block";
+            document.getElementById('tidContainer').style.display = "block";
+        }
+
+        function selectCOD(element) {
+            selectedPayment = "COD";
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('payment-selected'));
+            element.classList.add('payment-selected');
+            document.getElementById('tidContainer').style.display = "none";
+        }
+
+        function closeModal() { document.getElementById('paymentModal').style.display = "none"; }
+
+        function justCopy() {
+            navigator.clipboard.writeText(document.getElementById('accNum').innerText);
+            document.getElementById('copyBtn').innerText = "Copied! ✅";
+            setTimeout(() => { document.getElementById('copyBtn').innerText = "Copy ID 📋"; }, 2000);
+        }
+
+       function confirmOrder() {
+    const name = document.getElementById('custName').value;
+    const tid = document.getElementById('transID').value;
+    const btn = document.getElementById('confirmBtn');
+    
+  
+    let cart = JSON.parse(localStorage.getItem('myCart')) || [];
+    let hasMainProduct = cart.some(item => {
+        let n = item.name.toLowerCase().trim();
+        return n.includes("little artists world");
+    });
+
+    if (hasMainProduct) {
+        const photoInput = document.getElementById('customerPhoto');
+        const bookNameInput = document.getElementById('bookNameInput');
+
+        
+        if (!photoInput || !photoInput.files || photoInput.files.length === 0) {
+            alert("❌ Please upload a photo for your 'Little Artists World' book!");
+            return;
+        }
+
+        // Check if book name is entered
+        if (!bookNameInput || bookNameInput.value.trim() === "") {
+            alert("❌ Please enter the name you want on the book!");
+            bookNameInput.focus();
+            return;
+        }
+    }
+    // ----------------------------------------------
+
+    // Purani validations
+    if(!name || !selectedPayment) {
+        alert("Please fill details and select payment method!");
+        return;
+    }
+
+    if(selectedPayment !== "COD" && tid.length < 11) {
+        alert("❌ Please enter valid Transaction ID (TID).");
+        return;
+    }
+
+
+    btn.innerText = "Verifying .......... 🛡️";
+    btn.disabled = true;
+
+    setTimeout(() => {
+        btn.innerText = "Order Confirmed ✅";
+        btn.disabled = false;
+        showOrderSuccess(); 
+    }, 5000); 
+}
+        function showOrderSuccess() {
+            document.getElementById('orderPopup').style.display = 'flex';
+        }
+
+        function closePopup() {
+            document.getElementById('orderPopup').style.display = 'none';
+            window.location.href = "index.html";
+        }
+
+        window.onclick = function(e) { if(e.target.className == "modal") closeModal(); }
+    </script>
+
+   <div id="orderPopup" class="popup-overlay">
+    <div class="popup-content">
+        <div class="success-icon">✓</div>
+        <h2 class="popup-title">Thank You for Your Order!</h2>
+       
+        <button onclick="closePopup()"sendOrderToWhatsApp() class="close-btn-premium">Close</button>
+
+    </div>
+</div>
+
+<style>
+  
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Fredoka:wght@400;600&display=swap');
+
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(8px);
+    }
+
+    .popup-content {
+        background: #fffaf5; 
+        padding: 40px 20px;
+        border-radius: 30px;
+        text-align: center;
+        width: 85%;
+        max-width: 350px;
+        border: 4px solid #8b5e3c; 
+        box-shadow: 0 10px 0px #8b5e3c; 
+        animation: popupBounce 0.5s ease;
+    }
+
+    .success-icon {
+        font-size: 50px;
+        color: #8b5e3c; 
+        margin-bottom: 10px;
+    }
+
+    .popup-title {
+        
+        font-family: 'Fredoka One', cursive; 
+        color: #5d4037; 
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+        letter-spacing: 1px;
+    }
+
+    .close-btn-premium {
+        background: #8b5e3c;
+        color: white;
+        border: none;
+        padding: 12px 45px;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        font-family: 'Fredoka One', cursive;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 5px 0px #5d4037;
+    }
+
+    .close-btn-premium:hover {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0px #5d4037;
+        background: #a67c52;
+    }
+
+    .close-btn-premium:active {
+        transform: translateY(4px);
+        box-shadow: 0 0px 0px #5d4037;
+    }
+
+    @keyframes popupBounce {
+        0% { transform: scale(0.3); opacity: 0; }
+        70% { transform: scale(1.05); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+</style>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+<script src="script.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="script.js"></script>

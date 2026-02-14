@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | KidColors</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        .contact-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 20px;
+            background-color: #fcf5ee; 
+        
+            font-family: inherit;
+        }
+
+        .contact-title-main {
+            font-size: 2.8rem;
+            color: #a68686; 
+            margin-bottom: 40px; 
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: bold;
+            letter-spacing: -1px; 
+        }
+
+        .contact-card-white {
+            background: white;
+            padding: 45px;
+            border-radius: 40px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            width: 100%;
+            max-width: 550px;
+            text-align: left;
+        }
+
+        .contact-item {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            color: #a68686;
+            font-weight: 600;
+          
+            font-family: inherit;
+        }
+
+        .contact-item span {
+            color: #555; 
+            font-weight: normal;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo-area">
+            <img src="images/logo.png.png" alt="Logo" class="logo"> 
+            <div>
+                <h1>Kidcolors</h1>
+                <p>Cute Aesthetic Coloring Adventures</p>
+            </div>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
+            <a href="contact.html" class="active">Contact</a>
+                  
+    </header>
+
+    <main class="contact-container">
+        <h1 class="contact-title-main">
+            Let's Stay in Touch 📩
+        </h1>
+
+        <div class="contact-card-white">
+            <div class="contact-item">
+                Email: <span>kidcolors3@gmail.com</span>
+            </div>
+            <div class="contact-item">
+                Phone: <span>03110525587 (WhatsApp)</span>
+            </div>
+            <div class="contact-item">
+                Instagram: <span>kidcolors.store</span>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>© 2026 kidcolors3@gmail.com — All Rights Reserved</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
